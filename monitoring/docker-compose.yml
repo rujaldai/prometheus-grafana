@@ -1,0 +1,34 @@
+version: '3.7'
+
+services:
+  prometheus:
+    depends_on:
+      - springboot-app
+    image: prom/prometheus:v2.44.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    depends_on:
+      - springboot-app
+    image: grafana/grafana:9.5.2
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    volumes:
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+
+  springboot-app:
+    container_name: app5
+    build: ./../
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    ports:
+      - "8080:8080"
+    environment:
+      MYSQL_HOST: host.docker.internal
